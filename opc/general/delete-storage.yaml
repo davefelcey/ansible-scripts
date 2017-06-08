@@ -1,4 +1,5 @@
 ---
+# Utiliy playbook for deleting a container and all its contents. A 'container' variable is used to determine what container to delete
 - hosts: localhost
 
   vars_files:
