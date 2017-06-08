@@ -33,5 +33,5 @@ This will create an Oracle database and Weblogic server instance on the DBaaS an
 
 `ansible-playbook delete-site.yaml`
 
-Note: for detailed output you can use the `-vvv` option
+Note: for detailed output you can use the `-vvv` option to see more verbose output
 
