@@ -29,3 +29,6 @@ jcs_password: Oracle_1
 jcs_container: jcs_container
 jcs_shape: oc3
 jcs_version: 12.1.3
+
+mos_user: my_oracle_support_username
+mos_password: my_oracle_support_password
