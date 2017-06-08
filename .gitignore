@@ -1,4 +1,3 @@
 *.retry
-opc/vars/all.yaml
 .vagrant
 temp

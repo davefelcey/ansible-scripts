@@ -1,0 +1,31 @@
+# Environment settings
+# ====================
+
+username: 'xxx'
+password: 'xxx'
+identity_domain: 'xxx'
+rest_endpoint: https://xxx.compute.em2.oraclecloud.com/
+ssh_key_name: opc_id_rsa
+ssh_dir: /home/vagrant/.ssh
+user: vagrant
+
+# Database settings
+
+# Check REST endpoint on DBCS page. See here: https://docs.oracle.com/en/cloud/paas/database-dbaas-cloud/csdbr/url-structure.html
+db_paas_rest_endpoint: https://dbcs.emea.oraclecloud.com
+db_instance_name: dbinstance
+db_service_name: dbservice
+db_password: Oracle_1
+db_container: db_container
+db_shape: oc3
+subscription_type: MONTHLY
+db_version: 12.1.0.2
+
+# JCS settings
+
+jcs_paas_rest_endpoint: https://jcs.emea.oraclecloud.com
+jcs_instance_name: jcsservice
+jcs_password: Oracle_1
+jcs_container: jcs_container
+jcs_shape: oc3
+jcs_version: 12.1.3
