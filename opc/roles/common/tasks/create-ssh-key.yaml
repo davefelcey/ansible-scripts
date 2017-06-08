@@ -1,0 +1,8 @@
+---
+- name: Create user keys
+  user:
+    name: "{{ user }}"
+    generate_ssh_key: yes
+    state: present
+    ssh_key_bits: "2048"
+    ssh_key_file: "/home/{{ user }}/.ssh/{{ ssh_key_name }}"

@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+
+  vars_files:
+    - ../vars/all.yaml
+
+  tasks:
+    - name: Get database details
+      uri:
+        url: "{{ db_paas_rest_endpoint }}/paas/service/dbcs/api/v1.1/instances/{{ identity_domain }}/{{ db_service_name }}"
+        method: GET
+        user: "{{ username }}"
+        password: "{{ password }}"
+        force_basic_auth: true
+        headers: 
+          X-ID-TENANT-NAME: "{{ identity_domain }}"
+        validate_certs: no
+        status_code: 200, 404
+        return_content: yes
+      register: database_details

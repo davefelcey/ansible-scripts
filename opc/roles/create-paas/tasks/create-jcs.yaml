@@ -1,0 +1,73 @@
+---
+- set_fact: pub_key="{{ lookup('file', '{{ ssh_dir }}/{{ ssh_key_name }}.pub') }}"
+
+- name: Check if database exists before creating JCS instance
+  uri:
+    url: "{{ db_paas_rest_endpoint }}/paas/service/dbcs/api/v1.1/instances/{{ identity_domain }}/{{ db_service_name }}"
+    method: GET
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: true
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+    validate_certs: no
+    status_code: 200, 404
+    return_content: yes
+  register: database_details
+  until: database_details.status == 200 and (database_details.content|from_json)['status'] == "Running"
+  retries: 20
+  delay: 30
+
+- name: Create JCS instance
+  uri:
+    url: "{{ jcs_paas_rest_endpoint }}/paas/service/jcs/api/v1.1/instances/{{ identity_domain }}"
+    method: POST
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: true
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+      Content-Type: "application/vnd.com.oracle.oracloud.provisioning.Service+json"
+    validate_certs: no
+    body_format: json
+    body:
+      '{
+          "serviceName": "{{ jcs_instance_name }}",
+          "level": "PAAS",
+          "subscriptionType": "{{ subscription_type }}",
+          "enableAdminConsole": true,
+          "description": "Example JCS service instance",
+          "provisionOTD": false,
+          "cloudStorageContainer": "Storage-{{ identity_domain }}/{{ jcs_container }}",
+          "cloudStorageUser": "{{ username }}",
+          "cloudStoragePassword": "{{ password }}",
+          "createStorageContainerIfMissing" : true,
+          "sampleAppDeploymentRequested" : false, 
+          "dbaName": "SYS",
+          "dbaPassword": "{{ db_password }}",	
+          "parameters": [
+            {		
+              "type": "weblogic",
+              "version": "{{ jcs_version }}",
+              "edition": "EE",
+              "domainMode": "PRODUCTION",
+              "managedServerCount": "1",
+              "domainName": "{{ jcs_domain }}",
+              "adminUserName": "weblogic",
+              "adminPassword": "{{ jcs_password }}",
+              "nodeManagerUserName": "weblogic",
+              "nodeManagerPassword": "{{ jcs_password }}",
+              "dbServiceName": "{{ db_service_name }}",
+              "dbaName": "SYS",
+              "dbaPassword": "{{ db_password }}",	
+              "shape": "{{ jcs_shape }}",
+              "VMsPublicKey": "{{ pub_key }}",
+              "domainVolumeSize": "10G",
+              "backupVolumeSize": "50G"		  
+            }
+         ]
+      }'
+    status_code: "202"
+    return_content: yes
+  register: jcs_creation_details
+  when: database_details.status == 200 and (database_details.content|from_json)['status'] == "Running"

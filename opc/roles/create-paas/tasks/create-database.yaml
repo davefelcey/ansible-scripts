@@ -1,0 +1,100 @@
+---
+- set_fact: pub_key="{{ lookup('file', '{{ ssh_dir }}/{{ ssh_key_name }}.pub') }}"
+- set_fact: database_version="{{ db_version }}"
+
+- name: Check if database exists
+  uri:
+    url: "{{ db_paas_rest_endpoint }}/paas/service/dbcs/api/v1.1/instances/{{ identity_domain }}/{{ db_service_name }}"
+    method: GET
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: true
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+    validate_certs: no
+    status_code: 200, 404
+    return_content: yes
+  register: database_details
+
+- name: Create 11.2.0.4 database
+  uri:
+    url: "{{ db_paas_rest_endpoint }}/paas/service/dbcs/api/v1.1/instances/{{ identity_domain }}"
+    method: POST
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: true
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+    validate_certs: no
+    body_format: json
+    body:
+      '{
+          "description": "Example DB service instance",
+          "edition": "EE",
+          "level": "PAAS",
+          "serviceName": "{{ db_service_name }}",
+          "shape": "{{ db_shape }}",
+          "subscriptionType": "{{ subscription_type }}",
+          "version": "{{ db_version }}",
+          "vmPublicKeyText": "{{ pub_key }}",
+          "parameters": [
+            {
+              "type": "db",
+              "usableStorage": "15",
+              "adminPassword": "{{ db_password }}",
+              "sid": "ORCL",
+              "failoverDatabase": "no",
+              "backupDestination": "BOTH",
+              "createStorageContainerIfMissing": "true",
+              "cloudStorageContainer": "Storage-{{ identity_domain }}/{{ db_container }}",
+              "cloudStorageUser": "{{ username }}",
+              "cloudStoragePwd": "{{ password }}"
+            }
+          ]
+       }'
+    status_code: "202"
+    return_content: yes
+  register: database_creation_details
+  when: (database_details.status == 404 and database_version == "11.2.0.4")
+  
+- name: Create database >= 11.2.0.4
+  uri:
+    url: "{{ db_paas_rest_endpoint }}/paas/service/dbcs/api/v1.1/instances/{{ identity_domain }}"
+    method: POST
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: "true"
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+    validate_certs: no
+    body_format: json
+    body:
+      '{
+          "description": "Example DB service instance",
+          "edition": "EE",
+          "level": "PAAS",
+          "serviceName": "{{ db_service_name }}",
+          "shape": "{{ db_shape }}",
+          "subscriptionType": "{{ subscription_type }}",
+          "version": "{{ db_version }}",
+          "vmPublicKeyText": "{{ pub_key }}",
+          "parameters": [
+            {
+              "type": "db",
+              "usableStorage": "25",
+              "adminPassword": "{{ db_password }}",
+              "sid": "ORCL",
+              "pdbName": "MYPDB",
+              "failoverDatabase": "no",
+              "backupDestination": "BOTH",
+              "createStorageContainerIfMissing": "true",
+              "cloudStorageContainer": "Storage-{{ identity_domain }}/{{ db_container }}",
+              "cloudStorageUser": "{{ username }}",
+              "cloudStoragePwd": "{{ password }}"
+            }
+          ]
+       }'
+    status_code: "202"
+    return_content: yes
+  register: database_creation_details
+  when: (database_details.status == 404 and database_version != "11.2.0.4")

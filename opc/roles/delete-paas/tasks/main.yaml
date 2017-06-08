@@ -1,0 +1,5 @@
+# Delete JCS instance
+- include: delete-jcs.yaml
+
+# Delete DBaS instance
+- include: delete-database.yaml

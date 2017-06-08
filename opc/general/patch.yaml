@@ -1,0 +1,63 @@
+---
+- hosts: localhost
+
+  vars_files:
+    - ../vars/all.yaml
+
+  tasks:
+    - name: Check if JCS instance exists
+      uri:
+        url: "{{ jcs_paas_rest_endpoint }}/paas/service/jcs/api/v1.1/instances/{{ identity_domain }}/{{ jcs_instance_name }}"
+        method: GET
+        user: "{{ username }}"
+        password: "{{ password }}"
+        force_basic_auth: true
+        headers: 
+          X-ID-TENANT-NAME: "{{ identity_domain }}"
+        validate_certs: no
+        status_code: 200, 404
+        return_content: yes
+      register: jcs_instance_details
+
+    - name: add new hosts
+      add_host:
+        name: jcshost
+        groups: new_host
+        ansible_user: opc
+        ansible_host: "{{ (jcs_instance_details.content|from_json)['cloud_ip'] }}"
+        ansible_ssh_private_key_file: "{{ ssh_dir }}/{{ ssh_key_name }}"
+      when: jcs_instance_details.status == 200
+
+- hosts: "jcshost"
+  become: true
+  become_user: root
+
+  vars_files:
+    - ../vars/all.yaml
+
+  tasks:
+  - name: Install the latest version of wget
+    yum:
+      name: wget
+      state: latest
+
+  - name: Install the latest version of unzip
+    yum:
+      name: unzip
+      state: latest
+
+  - name: Update etc hosts so that Oracle Support can be contacted
+    shell: |
+      sudo sh -c "if ! grep -q 'login.oracle.com' /etc/hosts; then echo 209.17.4.8 login.oracle.com >> /etc/hosts; fi"
+
+  - name: Download and insatll patch
+    shell: |
+      cd /u01/data/domains/{{ jcs_domain}}/bin
+      source ./setDomainEnv.sh
+      cd $MW_HOME/utils/bsu/cache_dir
+      wget --http-user={{ mos_user }} --http-passwd={{ mos_password }} --ca-certificate=getupdates.pem "https://updates.oracle.com/all_unsigned/p{{ patch_id }}.zip" -O p{{ patch_id }}.zip
+      unzip p{{ patch_id }}.zip
+      cd ..
+      ./bsu.sh -install -verbose -patch_download_dir=$MW_HOME/utils/bsu/cache_dir -patchlist={{ patch_list }} -prod_dir=${WL_HOME}
+    become_user: oracle
+    become: yes

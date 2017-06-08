@@ -1,0 +1,2 @@
+# Create SSH key pair
+- include: create-ssh-key.yaml

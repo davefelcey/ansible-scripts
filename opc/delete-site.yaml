@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+
+  # Parameters used in deployment
+  vars_files:
+    - vars/all.yaml
+
+  roles:
+     - common
+     - delete-paas

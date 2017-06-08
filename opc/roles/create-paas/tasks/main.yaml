@@ -1,0 +1,5 @@
+# Create DBaS instance
+- include: create-database.yaml
+
+# Create JCS instance
+- include: create-jcs.yaml

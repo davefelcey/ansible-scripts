@@ -1,0 +1,75 @@
+---
+- hosts: localhost
+
+  vars_files:
+    - ../vars/all.yaml
+
+  tasks:
+    - name: Authenticate with OPC
+      uri:
+        url: "https://{{ identity_domain }}.storage.oraclecloud.com/auth/v1.0"
+        method: GET
+        headers: 
+          X-Storage-User: "Storage-{{ identity_domain }}:{{ username }}"		
+          X-Storage-Pass: "{{ password }}" 
+        validate_certs: no
+        return_content: yes
+        status_code: "200"
+      register: auth_result
+
+    - set_fact: storage_auth_token="{{ auth_result['x_auth_token'] }}"
+
+    - name: Get Storage in OPC
+      uri:
+        url: "https://{{ identity_domain }}.storage.oraclecloud.com/v1/Storage-{{ identity_domain }}/{{ container }}"		
+        method: GET		
+        headers: 		
+          X-Auth-Token: "{{ storage_auth_token }}"			  
+        validate_certs: no	
+        return_content: yes		
+        status_code: 200, 204, 404		
+      register: storage_details
+
+    - name: If no container found then exit
+      fail: 
+        msg: "Container {{ container }} not found"
+      when: "storage_details.status == 404"
+
+    - set_fact: cont_content_file="./contents.txt"
+
+    - name: Save container contents
+      copy:
+        content: "{{ storage_details['content'] }}"
+        dest: "{{ cont_content_file }}"
+
+    - name: Prefix all container objects with container name
+      replace:
+        path: "{{ cont_content_file }}"
+        regexp: '^'
+        replace: "{{ container }}/"
+
+    - name: Install curl
+      yum:
+        name: curl
+        state: latest
+
+    - name: Delete Storage in OPC
+      shell: 'curl -v -X DELETE \
+        -H "X-Auth-Token: {{ storage_auth_token }}" \
+        -H "Content-Type: text/plain" \
+        -T {{ cont_content_file }} \
+        "https://{{ identity_domain }}.storage.oraclecloud.com/v1/Storage-{{ identity_domain }}/?bulk-delete"'
+
+    - name: Get Storage in OPC
+      uri:
+        url: "https://{{ identity_domain }}.storage.oraclecloud.com/v1/Storage-{{ identity_domain }}/{{ container }}"
+        method: GET
+        headers: 
+          X-Auth-Token: "{{ storage_auth_token }}"
+        validate_certs: no
+        status_code: 200, 204
+      register: storage_details
+      until: "storage_details.status == 204 or storage_details.status == 404"
+      retries: 10
+      delay: 30
+      ignore_errors: yes

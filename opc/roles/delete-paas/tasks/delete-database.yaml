@@ -1,0 +1,52 @@
+---
+- set_fact: pub_key="{{ lookup('file', '{{ ssh_dir }}/{{ ssh_key_name }}.pub') }}"
+
+- name: Check if database exists
+  uri:
+    url: "{{ db_paas_rest_endpoint }}/paas/service/dbcs/api/v1.1/instances/{{ identity_domain }}/{{ db_service_name }}"
+    method: GET
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: true
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+    validate_certs: no
+    return_content: yes
+    status_code: 200, 404
+    return_content: yes
+  register: database_details
+
+- name: Delete database if it exists
+  uri:
+    url: "{{ db_paas_rest_endpoint }}/paas/service/dbcs/api/v1.1/instances/{{ identity_domain }}/{{ db_service_name }}"
+    method: DELETE
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: true
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+    validate_certs: no
+    return_content: yes
+    status_code: 202
+    return_content: yes
+  when: database_details.status == 200
+  register: database_deletion_details
+
+- name: Wait until database deleted, if database exists
+  uri:
+    url: "{{ db_paas_rest_endpoint }}/paas/service/dbcs/api/v1.1/instances/{{ identity_domain }}/{{ db_service_name }}"
+    method: GET
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: true
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+    validate_certs: no
+    return_content: yes
+    status_code: "200"
+    return_content: yes
+  register: database_details
+  until: database_details.status == 404
+  retries: 20
+  delay: 30
+  ignore_errors: yes

@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+
+  vars_files:
+    - ../vars/all.yaml
+
+  tasks:
+    - name: jcs operation
+      uri:
+        url: "{{ jcs_paas_rest_endpoint }}/paas/service/jcs/api/v1.1/instances/{{ identity_domain }}/{{ jcs_instance_name }}"
+        method: POST
+        user: "{{ username }}"
+        password: "{{ password }}"
+        force_basic_auth: true
+        headers: 
+          X-ID-TENANT-NAME: "{{ identity_domain }}"
+          Content-Type: "application/vnd.com.oracle.oracloud.provisioning.Service+json"
+        validate_certs: no
+        status_code: 202
+        body_format: json
+        body:
+          '{
+             "lifecycleState": "{{ jcs_state }}"
+           }'
+        return_content: yes
+      register: jcs_operation
