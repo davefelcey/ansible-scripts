@@ -30,5 +30,9 @@ jcs_container: jcs_container
 jcs_shape: oc3
 jcs_version: 12.1.3
 
+# Patch settings (for 10.3.6)
+
+patch_id: 9923849_1036_Generic
+patch_list: 7BWI
 mos_user: my_oracle_support_username
 mos_password: my_oracle_support_password
