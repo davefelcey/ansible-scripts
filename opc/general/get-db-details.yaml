@@ -1,4 +1,5 @@
 ---
+# Gets the details of a database instance
 - hosts: localhost
 
   vars_files:

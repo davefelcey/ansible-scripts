@@ -35,4 +35,8 @@ jcs_version: 12.1.3
 patch_id: 9923849_1036_Generic
 patch_list: 7BWI
 mos_user: my_oracle_support_username
+<<<<<<< HEAD
 mos_password: my_oracle_support_password
+=======
+mos_password: my_oracle_support_password
+>>>>>>> 563e805d492f01aeb4deedcf2e3920429141d1e3
