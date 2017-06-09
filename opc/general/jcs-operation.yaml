@@ -16,11 +16,12 @@
           X-ID-TENANT-NAME: "{{ identity_domain }}"
           Content-Type: "application/vnd.com.oracle.oracloud.provisioning.Service+json"
         validate_certs: no
-        status_code: 202
         body_format: json
         body:
           '{
-             "lifecycleState": "{{ jcs_state }}"
+             "lifecycleState": "{{ jcs_state }}",
+             "force": "true"
            }'
+        status_code: 202
         return_content: yes
       register: jcs_operation

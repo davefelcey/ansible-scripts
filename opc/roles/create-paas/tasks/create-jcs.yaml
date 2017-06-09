@@ -18,6 +18,20 @@
   retries: 20
   delay: 30
 
+- name: Check if JCS instance exists
+  uri:
+    url: "{{ jcs_paas_rest_endpoint }}/paas/service/jcs/api/v1.1/instances/{{ identity_domain }}/{{ jcs_instance_name }}"
+    method: GET
+    user: "{{ username }}"
+    password: "{{ password }}"
+    force_basic_auth: true
+    headers: 
+      X-ID-TENANT-NAME: "{{ identity_domain }}"
+    validate_certs: no
+    status_code: 200, 404
+    return_content: yes
+  register: jcs_instance_details
+
 - name: Create JCS instance
   uri:
     url: "{{ jcs_paas_rest_endpoint }}/paas/service/jcs/api/v1.1/instances/{{ identity_domain }}"
@@ -44,9 +58,9 @@
           "createStorageContainerIfMissing" : true,
           "sampleAppDeploymentRequested" : false, 
           "dbaName": "SYS",
-          "dbaPassword": "{{ db_password }}",	
+          "dbaPassword": "{{ db_password }}",   
           "parameters": [
-            {		
+            {       
               "type": "weblogic",
               "version": "{{ jcs_version }}",
               "edition": "EE",
@@ -59,15 +73,15 @@
               "nodeManagerPassword": "{{ jcs_password }}",
               "dbServiceName": "{{ db_service_name }}",
               "dbaName": "SYS",
-              "dbaPassword": "{{ db_password }}",	
+              "dbaPassword": "{{ db_password }}",   
               "shape": "{{ jcs_shape }}",
               "VMsPublicKey": "{{ pub_key }}",
               "domainVolumeSize": "10G",
-              "backupVolumeSize": "50G"		  
+              "backupVolumeSize": "50G"       
             }
          ]
       }'
     status_code: "202"
     return_content: yes
   register: jcs_creation_details
-  when: database_details.status == 200 and (database_details.content|from_json)['status'] == "Running"
+  when: database_details.status == 200 and (database_details.content|from_json)['status'] == "Running" and jcs_instance_details.status == 404
