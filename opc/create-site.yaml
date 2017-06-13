@@ -17,3 +17,5 @@
   when: jcs_version == "10.3.6"
 - include: general/jcs-operation.yaml jcs_state=start
   when: jcs_version == "10.3.6"
+
+# - include: insis/install-insis.yaml

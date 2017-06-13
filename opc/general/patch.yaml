@@ -26,7 +26,7 @@
         ansible_user: opc
         ansible_host: "{{ (jcs_instance_details.content|from_json)['cloud_ip'] }}"
         ansible_ssh_private_key_file: "{{ ssh_dir }}/{{ ssh_key_name }}"
-      when: jcs_instance_details.status == 200
+      when: jcs_instance_details.status == 200 and (jcs_instance_details.content|from_json)['status'] == 'Running'
 
 - hosts: "jcshost"
   become: true

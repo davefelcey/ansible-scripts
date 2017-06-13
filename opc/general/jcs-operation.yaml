@@ -1,10 +1,25 @@
 ---
+# Only support stop/start, not restart as this is not possible with 11g
 - hosts: localhost
 
   vars_files:
     - ../vars/all.yaml
 
   tasks:
+    - name: Check if JCS instance exists
+      uri:
+        url: "{{ jcs_paas_rest_endpoint }}/paas/service/jcs/api/v1.1/instances/{{ identity_domain }}/{{ jcs_instance_name }}"
+        method: GET
+        user: "{{ username }}"
+        password: "{{ password }}"
+        force_basic_auth: true
+        headers: 
+          X-ID-TENANT-NAME: "{{ identity_domain }}"
+        validate_certs: no
+        status_code: 200, 404
+        return_content: yes
+      register: jcs_instance_details
+
     - name: jcs operation
       uri:
         url: "{{ jcs_paas_rest_endpoint }}/paas/service/jcs/api/v1.1/instances/{{ identity_domain }}/{{ jcs_instance_name }}"
@@ -25,3 +40,6 @@
         status_code: 202
         return_content: yes
       register: jcs_operation
+      when: 
+        ( jcs_instance_details.status == 200 and (jcs_instance_details.content|from_json)['status'] == 'Running' and jcs_state == 'stop' ) 
+        or ( jcs_instance_details.status == 200 and (jcs_instance_details.content|from_json)['status'] == 'Stopped' and jcs_state == 'start' )
