@@ -15,7 +15,7 @@ user: vagrant
 db_paas_rest_endpoint: https://dbcs.emea.oraclecloud.com
 db_instance_name: dbinstance
 db_service_name: dbservice
-db_password: Oracle_1
+db_password: Oracle_123
 db_container: db_container
 db_shape: oc3
 subscription_type: MONTHLY
@@ -25,10 +25,11 @@ db_version: 11.2.0.4
 
 jcs_paas_rest_endpoint: https://jcs.emea.oraclecloud.com
 jcs_instance_name: jcsservice
-jcs_password: Oracle_1
+jcs_password: Oracle_123
 jcs_container: jcs_container
 jcs_shape: oc3
 jcs_version: 10.3.6
+jcs_domain: bipDomain
 jcs_type: BASIC
 
 # Patch settings (for 10.3.6)
