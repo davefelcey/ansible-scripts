@@ -19,7 +19,7 @@ db_password: Oracle_1
 db_container: db_container
 db_shape: oc3
 subscription_type: MONTHLY
-db_version: 12.1.0.2
+db_version: 11.2.0.4
 
 # JCS settings
 
@@ -28,7 +28,8 @@ jcs_instance_name: jcsservice
 jcs_password: Oracle_1
 jcs_container: jcs_container
 jcs_shape: oc3
-jcs_version: 12.1.3
+jcs_version: 10.3.6
+jcs_type: BASIC
 
 # Patch settings (for 10.3.6)
 
