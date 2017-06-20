@@ -27,7 +27,7 @@
       X-ID-TENANT-NAME: "{{ identity_domain }}"
     validate_certs: no
     return_content: yes
-    status_code: 202
+    status_code: "202"
     return_content: yes
   when: database_details.status == 200
   register: database_deletion_details
@@ -43,7 +43,7 @@
       X-ID-TENANT-NAME: "{{ identity_domain }}"
     validate_certs: no
     return_content: yes
-    status_code: "200"
+    status_code: "200, 404"
     return_content: yes
   register: database_details
   until: database_details.status == 404
