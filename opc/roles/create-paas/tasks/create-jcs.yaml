@@ -65,7 +65,7 @@
               "version": "{{ jcs_version }}",
               "edition": "EE",
               "domainMode": "PRODUCTION",
-              "managedServerCount": "3",
+              "managedServerCount": "{{ jcs_server_count }}",
               "domainName": "{{ jcs_domain }}",
               "adminUserName": "weblogic",
               "adminPassword": "{{ jcs_password }}",

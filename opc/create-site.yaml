@@ -6,16 +6,16 @@
     - vars/all.yaml
 
   roles:
-     - common
-     - create-paas
+    # - common
+    # - create-paas
 
 # Perform these tasks on specific hosts so need to be a playbook
-- include: general/patch.yaml
-  when: jcs_version == "10.3.6"
+# - include: general/patch.yaml
+#   when: jcs_version == "10.3.6"
 # JCS 11g only allows stop/start, not restart
-- include: general/jcs-operation.yaml jcs_state=stop
-  when: jcs_version == "10.3.6"
-- include: general/jcs-operation.yaml jcs_state=start
-  when: jcs_version == "10.3.6"
+# - include: general/jcs-operation.yaml jcs_state=stop
+#   when: jcs_version == "10.3.6"
+# - include: general/jcs-operation.yaml jcs_state=start
+#   when: jcs_version == "10.3.6"
 
-# - include: insis/install-insis.yaml
+- include: insis/install-insis.yaml

@@ -13,7 +13,7 @@
     status_code: 200, 404
     return_content: yes
   register: jcs_instance_details
-  
+
 - name: Delete JCS instance if it exists
   uri:
     url: "{{ jcs_paas_rest_endpoint }}/paas/service/jcs/api/v1.1/instances/{{ identity_domain }}/{{ jcs_instance_name }}"
@@ -28,12 +28,12 @@
     body_format: json
     body:
       '{
-         "dbaName": "{{ db_service_name }}",
-         "dbaPassword": "{{ db_password }}",
-         "forceDelete": true,
-         "skipBackupOnTerminate": true
-       }'
-    status_code: 202
+          "dbaName": "SYS",
+          "dbaPassword": "{{ db_password }}",
+          "forceDelete": "true",
+          "skipBackuOnTerminate": "true"
+      }'
+    status_code: "202"
     return_content: yes
   when: jcs_instance_details.status == 200
   register: delete_jcs_instance_details
